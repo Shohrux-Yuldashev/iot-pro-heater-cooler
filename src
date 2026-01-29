@@ -1,0 +1,34 @@
+#include "config.h"
+#include "SystemControl.h"
+#include "WebServerModule.h"
+
+void setup() {
+    Serial.begin(115200);
+    
+    // Initialize Modules
+    initHardware();
+    initWiFi();
+    initWebServer();
+    
+    // Final UI Setup
+    Serial.print("IP Manzil: ");
+    Serial.println(getLocalIP());
+    updateDisplay(); 
+}
+
+void loop() {
+    // Process incoming web requests
+    handleWebClients();
+    
+    // Non-blocking periodic task execution (every 2 seconds)
+    static unsigned long lastUpdate = 0;
+    if (millis() - lastUpdate > 2000) {
+        lastUpdate = millis();
+        
+        updateControl(); // Logic update
+        updateDisplay(); // LCD update
+        
+        // Debug output
+        Serial.printf("Temp: %.1f | Target: %.1f | Action: %s\n", roomTemp, targetTemp, currentAction.c_str());
+    }
+}
